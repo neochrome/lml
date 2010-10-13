@@ -5,7 +5,7 @@ module LightMarkupLanguage
     | Text of string
     | Attribute of string * string
     | Element of string * seq<LightMarkup>
-        member root.write = 
+        override root.ToString() = 
             let sb = new System.Text.StringBuilder()
             let attr node = match node with Attribute(_,_) -> true | _ -> false
             let no_attr node = not (attr node)
@@ -24,7 +24,8 @@ module LightMarkupLanguage
                         sb.AppendFormat("</{0}>", name) |> ignore
                     sb.AppendLine() |> ignore
             build root
-            printfn "%s" (sb.ToString())
+            sb.ToString()
+        member this.write (stream:System.IO.TextWriter) = stream.Write (this.ToString())
         static member (?) (self:LightMarkup, name:string) = Element(name, [])
         static member (?<-) (self:LightMarkup, name:string, nodes:seq<LightMarkup>) = Element(name, nodes)
         static member (?<-) (self:LightMarkup, name:string, node:LightMarkup) = Element(name, [node])
